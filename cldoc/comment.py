@@ -378,8 +378,15 @@ class CommentsDatabase(object):
 
             cleaned = self.clean(token)
 
-            if not cleaned is None:
+            if not cleaned is None and "cldoc:" not in cleaned:
                 comments.append(cleaned)
+            # Before concat execute cldoc:<instruction>() comments
+            # This stops documentation comments getting eaten by instruction
+            # comments.
+            elif "cldoc:" in cleaned:
+                self.extract_one(token, cleaned)
+                token = iter.next()
+                continue
 
             prev = token
             token = iter.next()
